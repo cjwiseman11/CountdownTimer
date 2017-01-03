@@ -1,0 +1,9 @@
+.paused {
+  border: solid 1px orange;
+  padding: 5px;
+}
+
+.alarm {
+  border: solid 1px red;
+  padding: 5px;
+}

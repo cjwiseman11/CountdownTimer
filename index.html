@@ -1,13 +1,20 @@
 <head>
-
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
 </head>
 <body>
   <p><button class="createNewTimer">Create new timer</button></p>
-  <div id="1" class="input-area">
-    <input class="timer1-input" placeholder="Enter time"><button class="start-btn">Start</button>
-    <div>Countdown: <span class="timers timer1">0</span> minutes!</div>
+  <p><button class="startAllTimers">Start all timers</button><button class="stopAllTimers">Stop all timers</button></p>
+  <div id="timer-1" class="input-area">
+    <input name="hours" class="timer1-input" placeholder="Enter Hours">
+    <input name="minutes" class="timer1-input" placeholder="Enter Minutes">
+    <input name="seconds" class="timer1-input" placeholder="Enter Seconds">
+    <button class="start-btn">Start</button>
+    <div class="timer-countdown">Countdown: <span class="timers timer-1">00:00:00</span> minutes!</div>
   </div>
+  <audio id="alarmAudio" loop>
+    <source src="sounds/alarm-sound.wav" type="audio/wav">
+  </audio>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script type="text/javascript" src="js/timer-script.js"></script>
   <script type="text/javascript" src="js/timer-define.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </body>

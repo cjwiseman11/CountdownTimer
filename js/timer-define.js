@@ -1,4 +1,14 @@
-function CountDownTimer(duration, granularity) {
+var timestopped;
+var firstTime;
+function CountDownTimer(seconds, minutes, hours, timerid, granularity) {
+  seconds = seconds | 0;
+  minutes = minutes | 0;
+  hours = hours | 0;
+
+  var duration = seconds + (hours*3600) + (minutes*60);
+
+  this.timerid = timerid;
+
   this.duration = duration;
   this.granularity = granularity || 1000;
   this.tickFtns = [];
@@ -15,13 +25,27 @@ CountDownTimer.prototype.start = function() {
       diff, obj;
 
   (function timer() {
-    diff = that.duration - (((Date.now() - start) / 1000) | 0);
-
+    if(checkIfStopped(that.timerid) == "paused"){
+      if(!firstTime || firstTime == 0){
+        timestopped = Date.now();
+        firstTime = 1;
+      }
+    } else if(checkIfStopped(that.timerid) == "start") {
+      if(!timestopped){
+        diff = that.duration - (((Date.now() - start) / 1000) | 0);
+      } else {
+        timedifference = (that.duration - (((timestopped - start) / 1000 | 0 )));
+        diff = (that.duration - (((timestopped - start) / 1000) | 0)) + timedifference;
+        firstTime = 0;
+      }
+    }
     if (diff > 0) {
       setTimeout(timer, that.granularity);
     } else {
       diff = 0;
       that.running = false;
+      CountDownTimer.alarm();
+      $('#' + that.timerid).addClass("alarm");
     }
 
     obj = CountDownTimer.parse(diff);
@@ -43,9 +67,33 @@ CountDownTimer.prototype.expired = function() {
 };
 
 CountDownTimer.parse = function(seconds) {
+
+  var minutes = (seconds / 60) % 60;
+  var hours = seconds / 3600;
   return {
-    'hours': ((seconds / 60) / 24) | 0,
-    'minutes': (seconds / 60) | 0,
+    'hours': hours | 0,
+    'minutes': minutes | 0,
     'seconds': (seconds % 60) | 0,
   };
 };
+
+CountDownTimer.alarm = function(){
+  $('#alarmAudio')[0].play();
+};
+
+CountDownTimer.prototype.stop = function(seconds, timerid) {
+  if(seconds == 0 || seconds == null){
+    $('#alarmAudio')[0].pause();
+  } else {
+  }
+}
+
+function checkIfStopped(timerid, timerstatenumber){
+  if($('#' + timerid).attr("class") == "input-area running paused"){
+    return "paused";
+  } else if($('#' + timerid).attr("class") == "input-area running paused"){
+    return "stillpaused";
+  } else if($('#' + timerid).attr("class") == "input-area running")  {
+    return "start";
+  }
+}
