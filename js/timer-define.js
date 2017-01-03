@@ -44,6 +44,7 @@ CountDownTimer.prototype.start = function() {
         firstTime = 0;
       }
     }
+    CountDownTimer.updateprogess(that.timerid, diff, that.duration);
     if (diff > 0) {
       setTimeout(timer, that.granularity);
     } else {
@@ -60,6 +61,14 @@ CountDownTimer.prototype.start = function() {
       ftn.call(this, obj.hours, obj.minutes, obj.seconds);
     }, that);
   }());
+};
+
+CountDownTimer.updateprogess = function(timerid, diff, total) {
+  var progressbar = $('#' + timerid + ' > .progress > .progress-bar');
+  progressbar.attr("aria-valuenow", diff);
+  progressbar.attr("aria-valuemax", total);
+  var percentage = 100 - (((total - diff) / total) * 100);
+  progressbar.attr("style", "width:" + percentage + "%");
 };
 
 CountDownTimer.prototype.onTick = function(ftn) {
