@@ -3,20 +3,23 @@
   <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
 </head>
 <body>
-  <p><button class="createNewTimer">Create new timer</button></p>
-  <p><button class="startAllTimers">Start all timers</button><button class="stopAllTimers">Stop all timers</button></p>
-  <div id="timer-1" class="input-area">
-    <h2>Timer 1 <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2>
-    <input name="hours" class="timer1-input" placeholder="Enter Hours">
-    <input name="minutes" class="timer1-input" placeholder="Enter Minutes">
-    <input name="seconds" class="timer1-input" placeholder="Enter Seconds">
-    <button class="start-btn" disabled>Start</button> <span class="timers timer-1">00:00:00</span>
-    <div class="progress">
-      <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="00:30:00" style="width: 100%;">
-        <span class="sr-only">0% Complete</span>
+  <h1 class="text-center">Timers</h1>
+  <section class="timer-section container">
+    <p><button class="createNewTimer">Create new timer</button></p>
+    <p><button class="startAllTimers">Start all timers</button><button class="stopAllTimers">Stop all timers</button></p>
+    <div id="timer-1" class="input-area">
+      <h2>Timer 1 <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2>
+      <input name="hours" class="timer1-input" placeholder="Enter Hours">
+      <input name="minutes" class="timer1-input" placeholder="Enter Minutes">
+      <input name="seconds" class="timer1-input" placeholder="Enter Seconds">
+      <button class="start-btn" disabled>Start</button> <span class="timers timer-1">00:00:00</span>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="00:30:00" style="width: 100%;">
+          <span class="sr-only">0% Complete</span>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
   <audio id="alarmAudio" loop>
     <source src="sounds/alarm-sound.wav" type="audio/wav">
   </audio>
