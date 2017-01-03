@@ -3,7 +3,7 @@
 window.onload = function () {
 
     function createNewTimer(timercount){
-      $('#timer-' + (timercount)).after('<div id="timer-' + (timercount + 1) + '" class="input-area"><input name="hours" class="timer1-input" placeholder="Enter Hours"><input name="minutes" class="timer1-input" placeholder="Enter Minutes"><input name="seconds" class="timer1-input" placeholder="Enter Seconds"><button class="start-btn">Start</button><div>Countdown: <span class="timers timer-' + (timercount + 1) + '">00:00:00</span> minutes!</div></div>');
+      $('#timer-' + (timercount)).after('<div id="timer-' + (timercount + 1) + '" class="input-area"><input name="hours" class="timer1-input" placeholder="Enter Hours"><input name="minutes" class="timer1-input" placeholder="Enter Minutes"><input name="seconds" class="timer1-input" placeholder="Enter Seconds"><button class="start-btn" disabled>Start</button><div>Countdown: <span class="timers timer-' + (timercount + 1) + '">00:00:00</span> minutes!</div></div>');
     }
 
     function getTimerCount(){
@@ -75,6 +75,14 @@ window.onload = function () {
       var splitArray = timeRemaining.split(':');
       var seconds = ((splitArray[0] * 3600) | 0) + ((splitArray[1] * 60) | 0) + ((splitArray[2]) | 0);
       CountDownTimer.prototype.stop(seconds, $(this).parent().attr("id"));
+    });
+
+    $('body').on("paste click change keyup", ".input-area > input", function(){
+      if($(this).val() != ""){
+        $(this).parent().children("button").attr("disabled", false);
+      } else {
+        $(this).parent().children("button").attr("disabled", true);
+      }
     });
 
 };
