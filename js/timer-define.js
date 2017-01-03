@@ -1,5 +1,4 @@
-var timestopped;
-var firstTime;
+
 function CountDownTimer(seconds, minutes, hours, timerid, granularity) {
   seconds = seconds | 0;
   minutes = minutes | 0;
@@ -20,22 +19,28 @@ CountDownTimer.prototype.start = function() {
     return;
   }
   this.running = true;
+  this.timestopped;
+  this.firstTime;
+  this.timedifference;
   var start = Date.now(),
       that = this,
       diff, obj;
 
   (function timer() {
     if(checkIfStopped(that.timerid) == "paused"){
-      if(!firstTime || firstTime == 0){
-        timestopped = Date.now();
-        firstTime = 1;
+      if(!that.firstTime || that.firstTime == 0){
+        that.timestopped = Date.now();
+        that.firstTime = 1;
+        if(!that.timedifference){
+          that.timedifference = 0;
+        }
       }
+      that.timedifference = that.timedifference + 1;
     } else if(checkIfStopped(that.timerid) == "start") {
-      if(!timestopped){
+      if(!that.timestopped){
         diff = that.duration - (((Date.now() - start) / 1000) | 0);
       } else {
-        timedifference = (that.duration - (((timestopped - start) / 1000 | 0 )));
-        diff = (that.duration - (((timestopped - start) / 1000) | 0)) + timedifference;
+        diff = (that.duration + that.timedifference) - (((Date.now() - start) / 1000) | 0);
         firstTime = 0;
       }
     }
