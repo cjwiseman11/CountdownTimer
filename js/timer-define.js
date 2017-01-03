@@ -47,10 +47,12 @@ CountDownTimer.prototype.start = function() {
     if (diff > 0) {
       setTimeout(timer, that.granularity);
     } else {
+      if(!(that.duration == 0)){
+        CountDownTimer.alarm();
+        $('#' + that.timerid).addClass("alarm");
+      }
       diff = 0;
       that.running = false;
-      CountDownTimer.alarm();
-      $('#' + that.timerid).addClass("alarm");
     }
 
     obj = CountDownTimer.parse(diff);
