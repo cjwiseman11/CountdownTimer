@@ -3,7 +3,20 @@
 window.onload = function () {
 
     function createNewTimer(timercount){
-      $('#timer-' + (timercount)).after('<div id="timer-' + (timercount + 1) + '" class="input-area"><input name="hours" class="timer1-input" placeholder="Enter Hours"><input name="minutes" class="timer1-input" placeholder="Enter Minutes"><input name="seconds" class="timer1-input" placeholder="Enter Seconds"><button class="start-btn" disabled>Start</button><div>Countdown: <span class="timers timer-' + (timercount + 1) + '">00:00:00</span> minutes!</div></div>');
+      $('#timer-' + (timercount)).after('\
+      <div id="timer-' + (timercount + 1) +'" class="input-area">\
+        <h2>Timer ' + (timercount + 1) +' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2>\
+        <input name="hours" class="timer' + (timercount + 1) +'-input" placeholder="Enter Hours">\
+        <input name="minutes" class="timer' + (timercount + 1) +'-input" placeholder="Enter Minutes">\
+        <input name="seconds" class="timer' + (timercount + 1) +'-input" placeholder="Enter Seconds">\
+        <button class="start-btn" disabled>Start</button> <span class="timers timer-' + (timercount + 1) +'">00:00:00</span>\
+        <div class="progress">\
+          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="00:30:00" style="width: 100%;">\
+            <span class="sr-only">0% Complete</span>\
+          </div>\
+        </div>\
+      </div>');
+
     }
 
     function getTimerCount(){
@@ -85,4 +98,12 @@ window.onload = function () {
       }
     });
 
+    $('body').on("click", ".changelabel", function(){
+      $(this).parent().parent().html("<input name='changelabel'><button class='save-button'>Save</button> ");
+    });
+
+    $('body').on("click", ".save-button", function(){
+      var newlabel = $(this).parent().children("input").val();
+      $(this).parent().html(newlabel + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small>');
+    });
 };
