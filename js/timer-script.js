@@ -70,7 +70,7 @@ window.onload = function () {
 
     $('body').on("click", ".start-btn", function(){
       var timercontainer = $(this).parent().parent().parent();
-      if(timercontainer.hasClass("input-area")){
+      if(!(timercontainer.hasClass("running"))){
         var seconds = timercontainer.find('input[name=seconds]').val();
         var minutes = timercontainer.find('input[name=minutes]').val();
         var hours = timercontainer.find('input[name=hours]').val();

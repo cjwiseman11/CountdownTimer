@@ -105,9 +105,9 @@ CountDownTimer.prototype.stop = function(seconds, timerid) {
 }
 
 function checkIfStopped(timerid, timerstatenumber){
-  if($('#' + timerid).hasClass("running paused")){
+  if($('#' + timerid).hasClass("paused")){
     return "paused";
-  } else if($('#' + timerid).hasClass("running paused")){
+  } else if($('#' + timerid).hasClass("paused")){
     return "stillpaused";
   } else if($('#' + timerid).hasClass("running") && !($('#' + timerid).hasClass("paused"))){
     return "start";
