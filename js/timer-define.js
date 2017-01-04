@@ -97,13 +97,6 @@ CountDownTimer.alarm = function(){
   $('#alarmAudio')[0].play();
 };
 
-CountDownTimer.prototype.stop = function(seconds, timerid) {
-  if(seconds == 0 || seconds == null){
-    $('#alarmAudio')[0].pause();
-  } else {
-  }
-}
-
 function checkIfStopped(timerid, timerstatenumber){
   if($('#' + timerid).hasClass("paused")){
     return "paused";

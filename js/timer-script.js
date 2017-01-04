@@ -102,7 +102,10 @@ window.onload = function () {
       var timeRemaining = timercontainer.find('.super-timer-area > span').text();
       var splitArray = timeRemaining.split(':');
       var seconds = ((splitArray[0] * 3600) | 0) + ((splitArray[1] * 60) | 0) + ((splitArray[2]) | 0);
-      CountDownTimer.prototype.stop(seconds, $(this).parent().parent().parent().attr("id"));
+      if(seconds == 0 || seconds == null){
+        $('#alarmAudio')[0].pause();
+        timercontainer.removeClass("alarm");
+      }
     });
 
     $('body').on("paste click change keyup", ".input-area > .input-group > input", function(){

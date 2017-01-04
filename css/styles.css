@@ -1,0 +1,15 @@
+.alarm .progress {
+  background-color: #d9534f;
+  animation-duration: 1000ms;
+  animation-name: blink;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes blink {
+   from {
+      opacity: 1;
+   }
+   to {
+      opacity: 0;
+   }
+ }
