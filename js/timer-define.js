@@ -105,11 +105,11 @@ CountDownTimer.prototype.stop = function(seconds, timerid) {
 }
 
 function checkIfStopped(timerid, timerstatenumber){
-  if($('#' + timerid).attr("class") == "input-area running paused"){
+  if($('#' + timerid).hasClass("running paused")){
     return "paused";
-  } else if($('#' + timerid).attr("class") == "input-area running paused"){
+  } else if($('#' + timerid).hasClass("running paused")){
     return "stillpaused";
-  } else if($('#' + timerid).attr("class") == "input-area running")  {
+  } else if($('#' + timerid).hasClass("running") && !($('#' + timerid).hasClass("paused"))){
     return "start";
   }
 }
