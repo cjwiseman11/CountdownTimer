@@ -1,12 +1,14 @@
 
-function CountDownTimer(seconds, minutes, hours, timerid, granularity) {
+function CountDownTimer(seconds, minutes, hours, timerid, timestarted, granularity) {
   seconds = seconds | 0;
   minutes = minutes | 0;
   hours = hours | 0;
+  timestarted = timestarted;
 
   var duration = seconds + (hours*3600) + (minutes*60);
 
   this.timerid = timerid;
+  this.alreadystarted = timestarted;
 
   this.duration = duration;
   this.granularity = granularity || 1000;
@@ -22,10 +24,10 @@ CountDownTimer.prototype.start = function() {
   this.timestopped;
   this.firstTime;
   this.timedifference;
-  var start = Date.now(),
+  var start = this.alreadystarted,
       that = this,
       diff, obj;
-
+  CountDownTimer.prototype.timestarted = start;
   (function timer() {
     if(checkIfStopped(that.timerid) == "paused"){
       if(!that.firstTime || that.firstTime == 0){
@@ -97,6 +99,22 @@ CountDownTimer.alarm = function(){
   $('#alarmAudio')[0].play();
 };
 
+CountDownTimer.prototype.stop = function(seconds, timerid) {
+  if(seconds == 0 || seconds == null){
+    $('#alarmAudio')[0].pause();
+  } else {
+  }
+}
+
+CountDownTimer.prototype.restart = function(){
+  JSON.parse(cookie);
+  var seconds = cookie.seconds;
+  var minutes = cookie.minutes;
+  var hours = cookie.hours;
+  var timestarted = cookie.time;
+
+
+}
 function checkIfStopped(timerid, timerstatenumber){
   if($('#' + timerid).hasClass("paused")){
     return "paused";
