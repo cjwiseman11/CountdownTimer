@@ -2,10 +2,14 @@
 
 window.onload = function () {
 
+
     function createNewTimer(timercount){
-      $('#timer-' + (timercount)).after('\
+      if($('#timer-' + (timercount + 1)).length > 0){
+        timercount = timercount + 1;
+      }
+      $('.input-area:last').after('\
       <div id="timer-' + (timercount + 1) + '" class="input-area col-sm-6">\
-        <h2>Timer ' + (timercount + 1) + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2>\
+        <h2>Timer ' + (timercount + 1) + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2><button type="button" class="save-timer">Save</button>\
         <div class="input-group">\
           <input type="number" name="hours" class="timer' + (timercount + 1) + '-input form-control" placeholder="Hours">\
           <span class="input-group-addon">:</span>\
@@ -52,16 +56,27 @@ window.onload = function () {
       .forEach(function(key){
            if (key.indexOf("savedtimer") >= 0) {
                var json = JSON.parse(localStorage.getItem(key));
+               if(!($('#' + json.timerid).length)){
+                 var timernumber = json.timerid.replace('timer-', "");
+                 createNewTimer(timernumber - 1);
+               }
                $('#' + json.timerid).children('.input-group').children('input[name=hours]').val(json.hours);
                $('#' + json.timerid).children('.input-group').children('input[name=minutes]').val(json.minutes);
                $('#' + json.timerid).children('.input-group').children('input[name=seconds]').val(json.seconds);
+               if(!(json.time == "notstarted")){
+                 var timercontainer = $('#' + json.timerid);
+                 timercontainer.addClass("running");
+                 var timer = new CountDownTimer(json.seconds, json.minutes, json.hours, json.timerid, json.time);
+                 var display = document.querySelector('.' + json.timerid);
+                 timer.onTick(format(display)).start();
+                 timercontainer.find('input').attr("disabled", "true");
+               }
            }
        });
     }
-
     getSavedTimers();
 
-    $('.save-timer').on("click", function(){
+    $('body').on("click", ".save-timer", function(){
       var json = new Object();
       json.timerid = $(this).parent().attr("id");
       json.hours = $(this).parent().children('.input-group').children('input[name=hours]').val();
@@ -98,6 +113,7 @@ window.onload = function () {
 
     $('body').on("click", ".start-btn", function(){
       var timercontainer = $(this).parent().parent().parent();
+
       if(!(timercontainer.hasClass("running"))){
         var seconds = timercontainer.find('input[name=seconds]').val();
         var minutes = timercontainer.find('input[name=minutes]').val();
@@ -110,7 +126,7 @@ window.onload = function () {
         timercontainer.addClass("running");
 
         var display = document.querySelector('.' + timernumber);
-        var timer = new CountDownTimer(seconds, minutes, hours, timernumber);
+        var timer = new CountDownTimer(seconds, minutes, hours, timernumber, Date.now());
         timer.onTick(format(display)).start();
       }
 
