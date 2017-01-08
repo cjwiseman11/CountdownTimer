@@ -25,6 +25,7 @@ CountDownTimer.prototype.start = function() {
   var start = Date.now(),
       that = this,
       diff, obj;
+  CountDownTimer.prototype.timestarted = start;
 
   (function timer() {
     if(checkIfStopped(that.timerid) == "paused"){
@@ -102,6 +103,16 @@ CountDownTimer.prototype.stop = function(seconds, timerid) {
     $('#alarmAudio')[0].pause();
   } else {
   }
+}
+
+CountDownTimer.prototype.restart = function(){
+  JSON.parse(cookie);
+  var seconds = cookie.seconds;
+  var minutes = cookie.minutes;
+  var hours = cookie.hours;
+  var timestarted = cookie.time;
+
+
 }
 
 function checkIfStopped(timerid, timerstatenumber){

@@ -47,6 +47,34 @@ window.onload = function () {
         };
     }
 
+    function getSavedTimers(){
+      Object.keys(localStorage)
+      .forEach(function(key){
+           if (key.indexOf("savedtimer") >= 0) {
+               var json = JSON.parse(localStorage.getItem(key));
+               $('#' + json.timerid).children('.input-group').children('input[name=hours]').val(json.hours);
+               $('#' + json.timerid).children('.input-group').children('input[name=minutes]').val(json.minutes);
+               $('#' + json.timerid).children('.input-group').children('input[name=seconds]').val(json.seconds);
+           }
+       });
+    }
+
+    getSavedTimers();
+
+    $('.save-timer').on("click", function(){
+      var json = new Object();
+      json.timerid = $(this).parent().attr("id");
+      json.hours = $(this).parent().children('.input-group').children('input[name=hours]').val();
+      json.minutes = $(this).parent().children('.input-group').children('input[name=minutes]').val();
+      json.seconds = $(this).parent().children('.input-group').children('input[name=seconds]').val();
+      if($(this).parent().hasClass("running")){
+        json.time = CountDownTimer.prototype.timestarted;
+      } else {
+        json.time = "notstarted";
+      }
+      localStorage.setItem('savedtimer-' + json.timerid, JSON.stringify(json));
+    });
+
     $('.createNewTimer').on("click", function(){
       var timercount = getTimerCount();
       createNewTimer(timercount);
@@ -90,6 +118,11 @@ window.onload = function () {
       $(this).removeClass("start-btn");
       $(this).addClass("stop-btn");
       timercontainer.removeClass("paused");
+      if(!(localStorage.getItem("savedtimer-" + timernumber) === null)){
+        var json = JSON.parse(localStorage.getItem("savedtimer-" + timernumber));
+        json.time = CountDownTimer.prototype.timestarted;
+        localStorage.setItem('savedtimer-' + json.timerid, JSON.stringify(json));
+      }
     });
 
     $('body').on("click", ".stop-btn", function(){
