@@ -115,7 +115,6 @@ CountDownTimer.prototype.restart = function(){
 
 
 }
-
 function checkIfStopped(timerid, timerstatenumber){
   if($('#' + timerid).hasClass("paused")){
     return "paused";
