@@ -1,192 +1,264 @@
+$(function () {
+  getLocalTimers() || createNewTimer();
+});
 
+$('.create-timer').on('click', function () {
+  createNewTimer();
+});
 
-window.onload = function () {
+$('body').on('click', '.change-label', function () {
+  $(this).closest('.timer-label-container').siblings('.change-label-container').show();
+  $(this).closest('.timer-label-container').hide();
+});
 
+$('body').on('click', '.save-label', function () {
+  var timerContainer = $(this).closest('.timer');
+  var newlabel = timerContainer.find('.change-label-input').val();
+  timerContainer.find('.timer-label-container .timer-label').text(newlabel);
+  $(this).parent().hide();
+  $(this).parent().siblings('.timer-label-container').show();
+  storeTimer(timerContainer.attr('id'), null, null);
+});
 
-    function createNewTimer(timercount){
-      if($('#timer-' + (timercount + 1)).length > 0){
-        timercount = timercount + 1;
-      }
-      $('.input-area:last').after('\
-      <div id="timer-' + (timercount + 1) + '" class="input-area col-sm-6">\
-        <h2>Timer ' + (timercount + 1) + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small></h2>\
-        <button type="button" class="save-timer">Save</button> <button type="button" class="delete-timer">delete</button>\
-        <div class="input-group">\
-          <input type="number" name="hours" class="timer' + (timercount + 1) + '-input form-control" placeholder="Hours">\
-          <span class="input-group-addon">:</span>\
-          <input type="number" name="minutes" class="timer' + (timercount + 1) + '-input form-control" placeholder="Minutes">\
-          <span class="input-group-addon">:</span>\
-          <input type="number" name="seconds" class="timer' + (timercount + 1) + '-input form-control" placeholder="Seconds">\
-          <span class="input-group-btn">\
-            <button type="button" class="start-btn btn btn-primary" disabled>Start</button>\
-          </span>\
-        </div>\
-        <div class="super-timer-area text-center">\
-          <br>\
-          <span class="timers timer-' + (timercount + 1) + ' h3">00:00:00</span>\
-        </div>\
-        <p></p>\
-        <div class="progress">\
-          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="00:30:00" style="width: 100%;">\
-            <span class="sr-only">0% Complete</span>\
-          </div>\
-        </div>\
-        <hr>\
-      </div>');
+$('body').on('click', '.delete-timer', function () {
+  var timerContainer = $(this).closest('.timer');
+  var label = timerContainer.find('.timer-label').text();
+
+  if (window.confirm('Are you sure you want to delete timer: ' + label)) {
+    deleteTimer(timerContainer.attr('id'));
+  }
+});
+
+$('body').on('click', '.start-stop-btn', function () {
+  setTimerState($(this).closest('.timer').attr('id'));
+});
+
+$('.start-all').on('click', function () {
+  $('.glyphicon-play').parent().click();
+});
+
+$('.stop-all').on('click', function () {
+  $('.glyphicon-pause').parent().click();
+});
+
+$('.stop-alarms').on('click', function () {
+  stopAllAlarms();
+});
+
+$('body').on('input', '.timer-input-section', function () {
+  storeTimer($(this).closest('.timer').attr('id'));
+});
+
+$('body').on('click', '.reset-timer', function () {
+  resetTimer($(this).closest('.timer').attr('id'));
+});
+
+function getLocalTimers() {
+  var localLength = localStorage.length;
+
+  if (!localLength) {
+    return;
+  }
+
+  for (i = 0; i < localLength; i++) {
+    var id = localStorage.key(i);
+    var timerObject = JSON.parse(localStorage.getItem(id));
+    createExistingTimer(id, timerObject);
+  }
+  return 'loaded';
+}
+
+function getHighestId() {
+  var highest = 0;
+  $('.timer').each(function() {
+    var id = +$(this).attr('id').replace('timer-', '');
+    if(id > highest) {
+        highest = id;
     }
+  });
+  return highest;
+}
 
-    function getTimerCount(){
-      timerCount = 0;
-      $('.timers').each(function(){
-        timerCount++;
-      });
-      return timerCount;
-    }
+function createNewTimer() {
+  var latestId = $('.timer').length ? getHighestId() + 1 : 1;
+  var timerHtml = $('#timer-template')
+    .html()
+    .replace(/{timer-id}/g, 'timer-' + latestId)
+    .replace(/{timer-label}/, 'Timer ' + latestId)
+    .replace(/{hours}/, '')
+    .replace(/{minutes}/, '')
+    .replace(/{seconds}/, '');
 
-    function format(display) {
-        return function (hours, minutes, seconds) {
-            hours = hours < 10 ? "0" + hours : hours;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.textContent = hours + ':' + minutes + ':' + seconds;
-        };
-    }
+  $('.timers-container').append(timerHtml);
+}
 
-    function getSavedTimers(){
-      Object.keys(localStorage)
-      .forEach(function(key){
-           if (key.indexOf("savedtimer") >= 0) {
-               var json = JSON.parse(localStorage.getItem(key));
-               if(!($('#' + json.timerid).length)){
-                 var timernumber = json.timerid.replace('timer-', "");
-                 createNewTimer(timernumber - 1);
-               }
-               $('#' + json.timerid).children('.input-group').children('input[name=hours]').val(json.hours).trigger('change');
-               $('#' + json.timerid).children('.input-group').children('input[name=minutes]').val(json.minutes).trigger('change');
-               $('#' + json.timerid).children('.input-group').children('input[name=seconds]').val(json.seconds).trigger('change');
-               $('#' + json.timerid).children('h2').html(json.label + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small>');
-               if(!(json.time == "notstarted")){
-                 var timercontainer = $('#' + json.timerid);
-                 timercontainer.addClass("running");
-                 var timer = new CountDownTimer(json.seconds, json.minutes, json.hours, json.timerid, json.time);
-                 var display = document.querySelector('.' + json.timerid);
-                 timer.onTick(format(display)).start();
-                 timercontainer.find('input').attr("disabled", "true");
-             }
-           }
-       });
-    }
-    getSavedTimers();
+function createExistingTimer(timerId, timerObject) {
+  var timerHtml = $('#timer-template')
+    .html()
+    .replace(/{timer-id}/g, timerId)
+    .replace(/{timer-label}/, timerObject.label)
+    .replace(/{hours}/, timerObject.hours)
+    .replace(/{minutes}/, timerObject.minutes)
+    .replace(/{seconds}/, timerObject.seconds);
+  $('.timers-container').append(timerHtml);
+  // Check if the timer was running and start accordingly
+  if (timerObject.dateStarted && !timerObject.datePaused) {
+    $('#' + timerId).attr('data-state', 'existing');
+    setTimerState(timerId);
+  } else if(timerObject.datePaused) {
+    $('#' + timerId).attr('data-state', 'existing-paused');
+    setTimerState(timerId); // This pauses the timer
+  }
+}
 
-    $('body').on("click", ".save-timer", function(){
-      var json = new Object();
-      json.timerid = $(this).parent().attr("id");
-      json.hours = $(this).parent().children('.input-group').children('input[name=hours]').val();
-      json.minutes = $(this).parent().children('.input-group').children('input[name=minutes]').val();
-      json.seconds = $(this).parent().children('.input-group').children('input[name=seconds]').val();
-      json.label = $(this).parent().children('h2').text();
-      if($(this).parent().hasClass("running")){
-        json.time = CountDownTimer.prototype.timestarted;
-      } else {
-        json.time = "notstarted";
-      }
-      localStorage.setItem('savedtimer-' + json.timerid, JSON.stringify(json));
-    });
+function storeTimer(timerId, dateStarted) {
+  var thisTimer = '#' + timerId;
 
-    $('body').on("click", ".delete-timer", function(){
-      localStorage.removeItem('savedtimer-' + $(this).parent().attr("id"));
-      $(this).parent().remove();
-    });
+  thisTimerStored = {
+    hours: $(thisTimer + ' input[name=hours]').val() | 0,
+    minutes: $(thisTimer + ' input[name=minutes]').val() | 0,
+    seconds: $(thisTimer + ' input[name=seconds]').val() | 0,
+    dateStarted: dateStarted,
+    label: $(thisTimer + ' .timer-label').text()
+  };
 
-    $('.createNewTimer').on("click", function(){
-      var timercount = getTimerCount();
-      createNewTimer(timercount);
-    });
+  localStorage.setItem(timerId, JSON.stringify(thisTimerStored));
+}
 
-    $('.startAllTimers').on("click", function(){
-      $('.input-group-btn > button').each(function(){
-        if($(this).text() == "Start"){
-          $(this).click();
-        }
-      });
-    });
+function startTimer(timerId, countdownFrom, dateStarted) {
+  var duration = countdownFrom.seconds + countdownFrom.hours * 3600 + countdownFrom.minutes * 60;
+  var dateNow = Date.now();
+  var diff = duration - (((dateNow - dateStarted) / 1000) | 0);
+  
+  if (diff <= 0) {
+    diff = 0;
+    timerAlarm(timerId);
+  }
+  
+  setTimeDisplay(timerId, diff, duration);
 
-    $('.stopAllTimers').on("click", function(){
-      $('.input-group-btn > button').each(function(){
-        if($(this).text() == "Stop"){
-          $(this).click();
-        }
-      });
-    });
+  if (duration) {
+    var timerInterval = setInterval(function () {
+      diff = duration - (((Date.now() - dateStarted) / 1000) | 0);
 
-    $('.stopAlarms').on("click", function(){
-      $('#alarmAudio')[0].pause();
-    });
-
-    $('body').on("click", ".start-btn", function(){
-      var timercontainer = $(this).parent().parent().parent();
-
-      if(!(timercontainer.hasClass("running"))){
-        var seconds = timercontainer.find('input[name=seconds]').val();
-        var minutes = timercontainer.find('input[name=minutes]').val();
-        var hours = timercontainer.find('input[name=hours]').val();
-
-        timercontainer.find('input').attr("disabled", "true");
-
-        var timernumber = timercontainer.attr("id");
-
-        timercontainer.addClass("running");
-
-        var display = document.querySelector('.' + timernumber);
-        var timer = new CountDownTimer(seconds, minutes, hours, timernumber, Date.now());
-        timer.onTick(format(display)).start();
+      if (diff <= 0) {
+        diff = 0;
+        clearInterval(timerInterval);
+        timerAlarm(timerId);
       }
 
-      $(this).text("Stop");
-      $(this).removeClass("start-btn");
-      $(this).addClass("stop-btn");
-      timercontainer.removeClass("paused");
-      if(!(localStorage.getItem("savedtimer-" + timernumber) === null)){
-        var json = JSON.parse(localStorage.getItem("savedtimer-" + timernumber));
-        json.time = CountDownTimer.prototype.timestarted;
-        json.seconds = seconds;
-        json.minutes = minutes;
-        json.hours = hours;
-        json.label = timercontainer.children('h2').text();
-        localStorage.setItem('savedtimer-' + json.timerid, JSON.stringify(json));
-      }
-    });
+      setTimeDisplay(timerId, diff, duration);
 
-    $('body').on("click", ".stop-btn", function(){
-      var timercontainer = $(this).parent().parent().parent();
-      $(this).text("Start");
-      $(this).removeClass("stop-btn");
-      $(this).addClass("start-btn");
-      timercontainer.addClass("paused");
+    }, 1000);    
+  } else {
+    // Count up from 0 if no duration is set
+    var timerInterval = setInterval(function () {
+      duration++;
+      setTimeDisplay(timerId, duration);
+    }, 1000);
+  }
+  $('#' + timerId).attr('data-interval', timerInterval);
+  storeTimer(timerId, dateStarted);
+}
 
-      var timeRemaining = timercontainer.find('.super-timer-area > span').text();
-      var splitArray = timeRemaining.split(':');
-      var seconds = ((splitArray[0] * 3600) | 0) + ((splitArray[1] * 60) | 0) + ((splitArray[2]) | 0);
-      if(seconds == 0 || seconds == null){
-        $('#alarmAudio')[0].pause();
-        timercontainer.removeClass("alarm");
-      }
-    });
+function setTimeDisplay(timerId, diff, duration) {
+  var hours = (diff / 3600) | 0;
+  hours = hours < 10 ? '0' + hours : hours;
 
-    $('body').on("paste click change keyup", ".input-area > .input-group > input", function(){
-      if($(this).val() != ""){
-        $(this).parent().children("span.input-group-btn").children("button").attr("disabled", false);
-      } else {
-        $(this).parent().children("span.input-group-btn").children("button").attr("disabled", true);
-      }
-    });
+  var minutes = (diff / 60) % 60 | 0;
+  minutes = minutes < 10 ? '0' + minutes : minutes;
 
-    $('body').on("click", ".changelabel", function(){
-      $(this).parent().parent().html("<input name='changelabel'><button class='save-button'>Save</button> ");
-    });
+  var seconds = diff % 60 | 0;
+  seconds = seconds < 10 ? '0' + seconds : seconds;
 
-    $('body').on("click", ".save-button", function(){
-      var newlabel = $(this).parent().children("input").val();
-      $(this).parent().html(newlabel + ' <small><span class="glyphicon glyphicon-pencil changelabel"></span></small>');
-    });
-};
+  $('#' + timerId + ' .hours').text(hours);
+  $('#' + timerId + ' .minutes').text(minutes);
+  $('#' + timerId + ' .seconds').text(seconds);
+
+  $('#' + timerId + ' .progress-bar').attr('aria-valuenow');
+
+  $('#' + timerId + ' .progress-bar').attr('aria-valuenow', duration);
+
+  var percentage = ((diff / duration) * 100).toFixed(2);
+  $('#' + timerId + ' .progress-bar').css('width', percentage + '%');
+  $('#' + timerId + ' .progress-bar').attr('aria-valuenow', percentage);
+}
+
+function setTimerState(timerId) {
+  switch($('#' + timerId).attr('data-state')) {
+    case 'running': // Pause
+      $('#' + timerId).attr('data-state', 'paused');
+      $('#' + timerId + ' .start-stop-btn span').removeClass('glyphicon-pause').addClass('glyphicon-play');
+      $('#' + timerId + ' .reset-timer').attr('disabled', false);
+      clearInterval($('#' + timerId).attr('data-interval'));
+      var storedTimer = JSON.parse(localStorage.getItem(timerId));
+      storedTimer.datePaused = Date.now();
+      localStorage.setItem(timerId, JSON.stringify(storedTimer));
+      break;
+    case 'paused': // Continue
+      $('#' + timerId).attr('data-state', 'running');
+      $('#' + timerId + ' .start-stop-btn span').removeClass('glyphicon-play').addClass('glyphicon-pause');
+      $('#' + timerId + ' .reset-timer').attr('disabled', 'true');
+      var storedTimer = JSON.parse(localStorage.getItem(timerId));
+      var newStartedDate = storedTimer.dateStarted + ((Date.now() - storedTimer.datePaused) | 0);
+      startTimer(timerId, storedTimer, newStartedDate);
+      storedTimer.datePaused = null;
+      storedTimer.dateStarted = newStartedDate;
+      localStorage.setItem(timerId, JSON.stringify(storedTimer));
+      break;
+    case 'existing': // rebuild and start timer
+      $('#' + timerId).attr('data-state', 'running');
+      $('#' + timerId + ' .start-stop-btn span').removeClass('glyphicon-play').addClass('glyphicon-pause');
+      $('#' + timerId + ' input:not(.change-label-input)').attr('disabled', 'true');
+      var storedTimer = JSON.parse(localStorage.getItem(timerId));
+      startTimer(timerId, storedTimer, storedTimer.dateStarted);
+      break;
+    case 'existing-paused': // rebuild and pause timer
+      var storedTimer = JSON.parse(localStorage.getItem(timerId));
+      var duration = storedTimer.seconds + storedTimer.hours * 3600 + storedTimer.minutes * 60;
+      var diff = duration - (((storedTimer.datePaused - storedTimer.dateStarted) / 1000) | 0);
+      
+      setTimeDisplay(timerId, diff, duration);
+      $('#' + timerId).attr('data-state', 'paused');
+      $('#' + timerId + ' input:not(.change-label-input)').attr('disabled', 'true');
+      $('#' + timerId + ' .reset-timer').attr('disabled', false);
+      break;     
+    default: // Start
+      $('#' + timerId).attr('data-state', 'running');  
+      $('#' + timerId + ' .start-stop-btn span').removeClass('glyphicon-play').addClass('glyphicon-pause');
+      $('#' + timerId + ' input:not(.change-label-input)').attr('disabled', 'true');
+      var countdownFrom = {
+        seconds: $('#' + timerId + ' input[name=seconds]').val() | 0,
+        minutes: $('#' + timerId + ' input[name=minutes]').val() | 0,
+        hours: $('#' + timerId + ' input[name=hours]').val() | 0
+      };
+      startTimer(timerId, countdownFrom, Date.now());
+  }
+}
+
+function resetTimer(timerId) {
+  $('#' + timerId).removeClass('alarm').removeClass('paused');
+  $('#' + timerId + ' .stop-btn').text('Start').removeClass('stop-btn').addClass('start-btn');
+  $('#' + timerId + ' input:not(.change-label-input)').attr('disabled', false);
+  $('#' + timerId + ' .reset-btn').remove();
+  var storedTimer = JSON.parse(localStorage.getItem(timerId));
+  storedTimer.dateStarted = null;
+  storedTimer.datePaused = null;
+  $('#' + timerId).attr('data-state', '');
+  setTimeDisplay(timerId, 0, 0);
+  localStorage.setItem(timerId, JSON.stringify(storedTimer));
+}
+
+function deleteTimer(timerId) {
+  localStorage.removeItem(timerId);
+  $('#' + timerId).remove();
+}
+
+function timerAlarm(timerId) {
+  $('#' + timerId).addClass('alarm').removeClass('running');
+  // Add sound
+}
+
+function stopAllAlarms() {
+  $('.alarm').removeClass('alarm');
+}

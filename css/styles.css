@@ -12,4 +12,18 @@
    to {
       opacity: 0;
    }
- }
+}
+
+.timer-label-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.timer-label-container h2 {
+  margin: 0;
+}
+
+.button-section {
+  margin-bottom: 48px;
+}
